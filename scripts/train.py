@@ -6,6 +6,8 @@ from trainer import *
 loader = TradeResultsLoader()
 data = loader.retrieve_trade_data("sell")
 
+
+print data.train_data()
 Trainer(data).train()
 
 #
