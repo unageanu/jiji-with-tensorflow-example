@@ -1,1 +1,4 @@
 *.pyc
+scripts/logs
+scripts/__ignore
+__pycache__
