@@ -21,10 +21,13 @@ class TradeResults:
         return self.__test_data()["profit_or_loss"]
 
     def __train_data(self):
-        return self.data.loc[lambda df: df.index % 3 == 0, :]
+        # 全データの 2/3 を訓練データとして使う。
+        # トレード時の地合いの影響を分散させるため、時系列でソートしたものから均等に抜き出す。
+        return self.data.loc[lambda df: df.index % 3 != 0, :]
 
     def __test_data(self):
-        return self.data.loc[lambda df: df.index % 3 != 0, :]
+        # 全データの 1/3 をテストデータとして使う。
+        return self.data.loc[lambda df: df.index % 3 == 0, :]
 
     def __clean(self, data):
         del data['_id']
@@ -38,10 +41,13 @@ class TradeResults:
         return data
 
     def __normalize(self, data):
+        # すべてのデータをz-score で正規化する
         for col in data.columns:
             data[col] = (data[col] - data[col].mean())/data[col].std(ddof=0)
         data = data.fillna(0)
         return data
+
+
 
 class TradeResultsLoader:
 
@@ -55,5 +61,5 @@ class TradeResultsLoader:
         client = pymongo.MongoClient(
             TradeResultsLoader.DB_HOST, TradeResultsLoader.DB_PORT)
         collection = client[TradeResultsLoader.DB][TradeResultsLoader.COLLECTION]
-        cursor = collection.find({"sell_or_buy": sell_or_buy}).sort("entered_at")
+        cursor = collection.find({"sell_or_buy":sell_or_buy}).sort("entered_at")
         return TradeResults(pd.DataFrame(list(cursor)))

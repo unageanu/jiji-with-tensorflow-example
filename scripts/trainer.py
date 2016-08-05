@@ -5,7 +5,7 @@ import numpy as np
 
 class Trainer:
 
-    HIDDEN_UNIT_SIZE = 32
+    HIDDEN_UNIT_SIZE = 256
 
     def __init__(self, data):
         self.data = data
@@ -13,29 +13,46 @@ class Trainer:
         self.__setup_model()
         self.__setup_ops()
 
-    def train(self):
+    def train(self, steps):
         best = float("inf")
-        merge_summaries = tf.merge_all_summaries()
-        with tf.Session() as sess:
-            summary_writer = tf.train.SummaryWriter('logs', graph_def=sess.graph_def)
-            sess.run(tf.initialize_all_variables())
-            for i in range(10001):
-                loss_train = sess.run(self.loss_op, feed_dict=self.train_feed_dict())
-                sess.run(self.train_op, feed_dict=self.train_feed_dict())
+        with tf.Session() as session:
+            self.__prepare_train(session)
+
+            for i in range(steps):
+                loss_train = self.__do_train(session, i)
+
                 if loss_train < best:
                     best = loss_train
-                    best_match = sess.run(self.model, feed_dict=self.test_feed_dict())
+                    self.__update_best_match(session)
                 if i %100 == 0:
-                    print "step {}".format(i)
-                    print loss_train
-                    summary_str = sess.run(merge_summaries, feed_dict=self.train_feed_dict())
-                    summary_str += sess.run(merge_summaries, feed_dict=self.test_feed_dict())
-                    summary_writer.add_summary(summary_str, i)
+                    self.__print_status(session, i, loss_train)
 
-                    #pearson = np.corrcoef(best_match.flatten(), test_profit_or_loss.flatten())
-                    #print 'train loss = {} ,test corrcoef={}'.format(best,pearson[0][1])
 
-            print best_match
+    def __prepare_train(self, session):
+        self.summary_writer = tf.train.SummaryWriter('logs', graph_def=session.graph_def)
+        session.run(tf.initialize_all_variables())
+
+    def __do_train(self, session, i):
+        loss_train = session.run(self.loss_op, feed_dict=self.train_feed_dict())
+        session.run(self.train_op, feed_dict=self.train_feed_dict())
+
+        summary_str = session.run(self.merge_summaries, feed_dict=self.train_feed_dict())
+        summary_str += session.run(self.merge_summaries, feed_dict=self.test_feed_dict())
+        self.summary_writer.add_summary(summary_str, i)
+
+        return loss_train
+
+    def __update_best_match(self, session):
+        # 現在のモデルを利用して、訓練データ、テストデータの利益を出力する
+        self.best_match_train = session.run(self.model, feed_dict=self.train_feed_dict())
+        self.best_match_test  = session.run(self.model, feed_dict=self.test_feed_dict())
+
+    def __print_status(self, session, i, loss_train):
+        # 現在のモデルを利用して推移した利益と実際の利益の相関を、訓練データ、テストデータそれぞれで計算し出力する
+        pearson_train = np.corrcoef(self.best_match_train.flatten(), self.data.train_profit_or_loss().values.flatten())
+        pearson_test  = np.corrcoef(self.best_match_test.flatten(), self.data.test_profit_or_loss().values.flatten())
+        print 'step {} train loss = {} ,train corrcoef={} ,test corrcoef={} '.format(
+            i, loss_train, pearson_train[0][1], pearson_test[0][1])
 
     def train_feed_dict(self):
         return {
@@ -71,18 +88,18 @@ class Trainer:
             output_weight = tf.Variable(tf.truncated_normal([Trainer.HIDDEN_UNIT_SIZE, 1], stddev=0.1), name='output_weight')
             output_bias = tf.Variable(tf.constant(0.1, shape=[1]), name='output_bias')
             output = tf.matmul(hidden1_output, output_weight) + output_bias
-        self.model = output #tf.nn.l2_normalize(output, 0)
+        self.model = tf.nn.l2_normalize(output, 0)
 
     def __setup_ops(self):
         self.loss_op = self.__loss()
         with tf.name_scope('training') as scope:
             optimizer = tf.train.GradientDescentOptimizer(0.01)
             self.train_op = optimizer.minimize(self.loss_op)
+        self.merge_summaries = tf.merge_all_summaries()
 
     def __loss(self):
          with tf.name_scope('loss') as scope:
-            #loss = tf.nn.l2_loss(self.model - tf.nn.l2_normalize(self.profit_or_loss, 0))
-            loss = tf.nn.l2_loss(self.model - self.profit_or_loss)
+            loss = tf.nn.l2_loss(self.model - tf.nn.l2_normalize(self.profit_or_loss, 0))
             tf.scalar_summary(self.loss_label, loss)
          return loss
 
