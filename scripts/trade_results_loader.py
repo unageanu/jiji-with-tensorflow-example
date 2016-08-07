@@ -6,7 +6,8 @@ import pandas as pd
 class TradeResults:
 
     def __init__(self, data):
-        self.data = self.__normalize(self.__clean(data))
+        self.raw  = data.copy()
+        self.data = TradeResults.normalize(self.__clean(data))
 
     def train_data(self):
         return self.__train_data().drop("profit_or_loss", axis=1)
@@ -40,8 +41,9 @@ class TradeResults:
             lambda sell_or_buy: 0 if sell_or_buy == "sell" else 1)
         return data
 
-    def __normalize(self, data):
-        # すべてのデータをz-score で正規化する
+    @staticmethod
+    def normalize(data):
+        # すべてのデータをz-scoreで正規化する
         for col in data.columns:
             data[col] = (data[col] - data[col].mean())/data[col].std(ddof=0)
         data = data.fillna(0)

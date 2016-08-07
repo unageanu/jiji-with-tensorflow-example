@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from trade_results_loader import *
-from trainer import *
+from model import *
 
 loader = TradeResultsLoader()
-data = loader.retrieve_trade_data("buy")
 
-
-print data.train_data()
-
-Trainer(data).train(10000)
+for sell_or_buy in ['sell', 'buy']:
+    data = loader.retrieve_trade_data(sell_or_buy)
+    with Trainer(sell_or_buy) as trainer:
+        trainer.train(10000, data)
+        trainer.save("../data/" + sell_or_buy +  ".ckpt")
