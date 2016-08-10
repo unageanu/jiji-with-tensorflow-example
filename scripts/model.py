@@ -4,8 +4,8 @@ import tensorflow as tf
 import numpy as np
 
 class Model:
-    HIDDEN_UNIT_SIZE = 256
-    COLUMN_SIZE = 17
+    HIDDEN_UNIT_SIZE = 32
+    COLUMN_SIZE = 7
 
     def __init__(self, context):
         self.context = context
@@ -59,6 +59,7 @@ class Model:
             loss = tf.nn.l2_loss(tf.nn.l2_normalize(self.model,0) - tf.nn.l2_normalize(self.profit_or_loss,0))
             self.loss_summary = tf.scalar_summary(self.loss_label, loss)
          return loss
+
 
 
 class Trainer(Model):
@@ -117,6 +118,7 @@ class Trainer(Model):
 
     def __reshape(self, profit_or_loss):
         return profit_or_loss.values.reshape(len(profit_or_loss.values), 1)
+
 
 
 class Estimator(Model):
