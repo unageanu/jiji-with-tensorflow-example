@@ -9,7 +9,7 @@ loader = TradeResultsLoader()
 
 estimator = Estimator()
 estimator.__enter__()
-estimator.restore("../data/model.ckpt")
+estimator.restore("./model.ckpt")
 
 trade_data  = loader.retrieve_trade_data()
 
