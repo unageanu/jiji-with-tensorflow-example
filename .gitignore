@@ -1,4 +1,6 @@
 *.pyc
-scripts/logs
-scripts/__ignore
+model/*.*
+cert/*.*
+build/tensorflow/scripts/logs
+build/tensorflow/scripts/__ignore
 __pycache__
