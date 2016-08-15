@@ -54,22 +54,6 @@ class TradeResults:
         del data['_id']
         del data['entered_at']
         del data['exited_at']
-        #del data['macd']
-        #del data['macd_signal']
-        #del data['macd_difference']
-        del data['rsi_9']
-        #del data['rsi_14']
-        #del data['slope_10']
-        #del data['slope_25']
-        #del data['slope_50']
-        #del data['ma_10_estrangement']
-        # del data['ma_25_estrangement']
-        #del data['ma_50_estrangement']
-        del data['stochastics_k']
-        del data['stochastics_d']
-        del data['stochastics_sd']
-        del data['fast_stochastics']
-        del data['slow_stochastics']
         data['sell_or_buy'] = data['sell_or_buy'].apply(
             lambda sell_or_buy: 0 if sell_or_buy == "sell" else 1)
         return data
@@ -87,11 +71,11 @@ class TradeResults:
 
 class TradeResultsLoader:
 
-    DB_HOST='172.17.0.1'
+    DB_HOST='mongodb'
     DB_PORT=27017
 
-    DB='jiji_dev'
-    COLLECTION='tensorflow_example_signals_ma'
+    DB='jiji'
+    COLLECTION='tensorflow_example_signals'
 
     def retrieve_trade_data(self):
         client = pymongo.MongoClient(
