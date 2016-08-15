@@ -77,11 +77,6 @@ class Trainer(Model):
     def __do_train(self, session, i, data):
         session.run(self.train_op, feed_dict=self.train_feed_dict(data))
 
-    def __update_best_match(self, session, data):
-        # 現在のモデルを利用して、訓練データ、テストデータの利益を出力する
-        self.best_match_train = session.run(self.model, feed_dict=self.train_feed_dict(data))
-        self.best_match_test  = session.run(self.model, feed_dict=self.test_feed_dict(data))
-
     def __add_summary(self, session, i, data):
         summary_str = session.run(self.merge_summaries, feed_dict=self.train_feed_dict(data))
         summary_str += session.run(self.merge_summaries, feed_dict=self.test_feed_dict(data))
