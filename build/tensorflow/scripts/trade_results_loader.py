@@ -75,7 +75,7 @@ class TradeResultsLoader:
     DB_PORT=27017
 
     DB='jiji'
-    COLLECTION='tensorflow_example_signals'
+    COLLECTION='tensorflow_example_trade_and_signals'
 
     def retrieve_trade_data(self):
         client = pymongo.MongoClient(

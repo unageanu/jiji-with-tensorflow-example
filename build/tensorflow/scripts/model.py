@@ -6,7 +6,7 @@ import numpy as np
 class Model:
     HIDDEN_UNIT_SIZE  = 32
     HIDDEN_UNIT_SIZE2 = 16
-    COLUMN_SIZE = 11
+    COLUMN_SIZE = 9
 
     def __init__(self):
         self.__setup_placeholder()
