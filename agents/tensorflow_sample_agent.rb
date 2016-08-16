@@ -132,7 +132,7 @@ TensorFlowと連携してトレードするエージェントのサンプル
       body = {sell_or_buy: sell_or_buy}.merge(signal)
       body.delete(:ma5)
       body.delete(:ma10)
-      result = @client.post("http://localhost:5001/api/estimator", {
+      result = @client.post("http://tensorflow:5000/api/estimator", {
         body: JSON.generate(body),
         header: {
           'Content-Type' => 'application/json'
