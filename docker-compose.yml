@@ -14,15 +14,15 @@ mongodb:
   container_name: jiji_example__mongodb
   image: mongo:3.0.7
   ports:
-    - "27018:27017"
+    - "37017:27017"
 
 nginx:
-  container_name: jiji_nginx
+  container_name: jiji_example__nginx
   image: unageanu/jiji-nginx:latest
   links:
     - jiji
   ports:
-    - "8443:443"
+    - "10443:443"
   volumes:
     - ./cert/server.crt:/etc/nginx/cert/ssl.crt:ro
     - ./cert/server.key:/etc/nginx/cert/ssl.key:ro
@@ -33,5 +33,5 @@ tensorflow:
   links:
     - mongodb
   ports:
-    - "5000:5000" # REST API
-    - "6006:6006" # tensorboard
+    - "15000:5000" # REST API
+    - "16006:6006" # tensorboard
